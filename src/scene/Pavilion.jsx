@@ -40,7 +40,7 @@ function Pavilion() {
         child.material = new THREE.MeshStandardMaterial({
           color: "#ddddda",
           metalness: 0.28,
-          roughness: 0.32,
+          roughness: 0.42,
         });
         return;
       }
@@ -101,21 +101,21 @@ function Pavilion() {
         return;
       }
 
-      // -------------------------
-      // ONYX WALLS (G_wall_2 & G_wall_3)
-      // -------------------------
-      if (materialName === "g_wall_2" || materialName === "g_wall_3") {
-        child.material = new THREE.MeshStandardMaterial({
-          color: "#e8d5b5",
-          roughness: 0.35,
-          metalness: 0.05,
-        });
-        return;
-      }
+      // // -------------------------
+      // // ONYX WALLS (G_wall_2 & G_wall_3)
+      // // -------------------------
+      // if (materialName === "g_wall_2" || materialName === "g_wall_3") {
+      //   child.material = new THREE.MeshStandardMaterial({
+      //     color: "#e8d5b5",
+      //     roughness: 0.35,
+      //     metalness: 0.05,
+      //   });
+      //   return;
+      // }
 
-      // -------------------------
-      // GREEN MARBLE WALL (G_wall_1)
-      // -------------------------
+      // // -------------------------
+      // // GREEN MARBLE WALL (G_wall_1)
+      // // -------------------------
       if (materialName === "g_wall_1") {
         child.material = new THREE.MeshStandardMaterial({
           color: "#7b8d88",
@@ -130,15 +130,18 @@ function Pavilion() {
       // -------------------------
       if (materialName === "glass_frosted") {
         child.material = new THREE.MeshPhysicalMaterial({
-          color: "#f0f5f5",
+          color: "#dfe7e7",
           metalness: 0,
-          roughness: 0.4,
-          transmission: 0.88,
+          roughness: 0.5,
+          roughnessRoughness: 0.5,
+          transmission: 0.9,
           transparent: true,
-          opacity: 1,
+          opacity: 0.8,
           ior: 1.45,
-          thickness: 0.08,
+          thickness: 0.1,
+          side: THREE.DoubleSide,
         });
+
         return;
       }
 
