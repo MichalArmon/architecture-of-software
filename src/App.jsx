@@ -8,6 +8,7 @@ import Ground from "./scene/Ground";
 import SceneEnvironment from "./scene/SceneEnvironment";
 
 import { CAMERA_POINTS, CURRENT_CAMERA } from "./scene/cameraPoints";
+import SurroundingTrees from "./scene/SurroundingTrees";
 
 function App() {
   const cameraPoint = CAMERA_POINTS[CURRENT_CAMERA];
@@ -33,9 +34,10 @@ function App() {
       >
         <SceneEnvironment />
 
-        <Trees />
+        {/* <Trees /> */}
 
         <Ground />
+        <SurroundingTrees />
 
         <Pavilion />
 

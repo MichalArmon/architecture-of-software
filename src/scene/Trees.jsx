@@ -33,6 +33,20 @@ const TREES = [
     rotation: 2.2,
     opacity: 1,
   },
+  {
+    type: "birch",
+    position: [26, 0, -43],
+    scale: 1,
+    rotation: 1.8,
+    opacity: 1,
+  },
+  {
+    type: "birch",
+    position: [43, 0, -43],
+    scale: 1,
+    rotation: 1,
+    opacity: 1,
+  },
 
   {
     type: "frene",
