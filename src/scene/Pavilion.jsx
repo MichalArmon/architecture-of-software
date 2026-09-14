@@ -116,14 +116,14 @@ function Pavilion() {
       // // -------------------------
       // // GREEN MARBLE WALL (G_wall_1)
       // // -------------------------
-      if (materialName === "g_wall_1") {
-        child.material = new THREE.MeshStandardMaterial({
-          color: "#7b8d88",
-          roughness: 0.3,
-          metalness: 0.1,
-        });
-        return;
-      }
+      // if (materialName === "g_wall_1") {
+      //   child.material = new THREE.MeshStandardMaterial({
+      //     color: "#7b8d88",
+      //     roughness: 0.3,
+      //     metalness: 0.1,
+      //   });
+      //   return;
+      // }
 
       // -------------------------
       // GLASS FROSTED
