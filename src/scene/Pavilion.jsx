@@ -1,17 +1,32 @@
-import { useGLTF, Sky, Clouds, Cloud } from "@react-three/drei";
+import { useGLTF, Sky, Clouds, Cloud, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
 function Pavilion() {
   const { scene } = useGLTF("/models/pavilion/pavilion.glb");
 
-  const waterMeshes = useRef([]);
+  const waterNormals = useTexture("/textures/waternormals.jpg");
+
+  const waterObjects = useRef([]);
+
+  // ==================================================
+  // WATER NORMAL MAP
+  // ==================================================
+
+  useEffect(() => {
+    waterNormals.wrapS = THREE.RepeatWrapping;
+    waterNormals.wrapT = THREE.RepeatWrapping;
+    waterNormals.repeat.set(4, 4);
+    waterNormals.needsUpdate = true;
+  }, [waterNormals]);
+
+  // ==================================================
+  // PAVILION SCENE
+  // ==================================================
 
   const pavilionScene = useMemo(() => {
     const cloned = scene.clone(true);
-
-    waterMeshes.current = [];
 
     cloned.traverse((child) => {
       if (!child.isMesh) return;
@@ -21,208 +36,193 @@ function Pavilion() {
 
       const materialName = (child.material?.name || "").toLowerCase();
 
-      // -------------------------
-      // COLUMNS - white metal
-      // -------------------------
+      // ==================================================
+      // COLUMNS
+      // ==================================================
+
       if (materialName === "crux_columns") {
         child.material = new THREE.MeshStandardMaterial({
           color: "#efefe9",
           metalness: 0.12,
           roughness: 0.38,
         });
+
         return;
       }
 
-      // -------------------------
-      // FRAME - soft silver/white
-      // -------------------------
+      // ==================================================
+      // FRAME
+      // ==================================================
+
       if (materialName === "frame") {
         child.material = new THREE.MeshStandardMaterial({
           color: "#ddddda",
           metalness: 0.28,
           roughness: 0.42,
         });
+
         return;
       }
 
-      // -------------------------
-      // CHAIRS METAL - chrome
-      // -------------------------
+      // ==================================================
+      // CHAIRS METAL
+      // ==================================================
+
       if (materialName === "chairsmetal") {
         child.material = new THREE.MeshStandardMaterial({
           color: "#c7c7c7",
           metalness: 0.88,
           roughness: 0.2,
         });
+
         return;
       }
 
-      // -------------------------
-      // WATER
-      // -------------------------
+      // ==================================================
+      // WATER (MeshPhysicalMaterial)
+      // ==================================================
+
       if (materialName === "water") {
+        // אם צריך להרים מעט את המים ביחס לריינו, אפשר לשחרר את ההערה כאן:
+        // child.position.y += 0.05;
+
         child.material = new THREE.MeshPhysicalMaterial({
-          color: "#e6f7f8",
-          metalness: 0.05,
+          color: "#7ab3cf",
+          metalness: 0.1,
+          roughness: 0.05,
+          transmission: 0.85,
+          thickness: 1.2,
+          ior: 1.333,
+          normalMap: waterNormals,
+          normalScale: new THREE.Vector2(0.15, 0.15),
+          transparent: true,
+          opacity: 0.9,
+          side: THREE.DoubleSide,
+        });
+
+        child.receiveShadow = true;
+        return;
+      }
+
+      // ==================================================
+      // GLASS CLEAR
+      // ==================================================
+
+      if (materialName === "Glass_regular") {
+        child.material = new THREE.MeshPhysicalMaterial({
+          color: "#ffffff",
+          metalness: 0,
           roughness: 0.02,
+          transmission: 0.48,
+          thickness: 0.1,
+          ior: 1.5,
           transparent: true,
           opacity: 1,
-          transmission: 0.92,
-          ior: 1.333,
-          reflectivity: 0.8,
-          clearcoat: 1.0,
-          clearcoatRoughness: 0.05,
-          envMapIntensity: 1.5,
-        });
-
-        const positionAttribute = child.geometry?.attributes?.position;
-        if (positionAttribute) {
-          child.userData.originalPositions = positionAttribute.array.slice();
-        }
-
-        waterMeshes.current.push(child);
-        return;
-      }
-
-      // -------------------------
-      // GLASS CLEAR
-      // -------------------------
-      if (materialName === "glass_clear") {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: "#e8f1f2",
-          metalness: 0,
-          roughness: 0.05,
-          transmission: 0.9,
-          transparent: true,
-          opacity: 0.35,
-          ior: 1.45,
-          thickness: 0.05,
-        });
-        return;
-      }
-
-      // // -------------------------
-      // // ONYX WALLS (G_wall_2 & G_wall_3)
-      // // -------------------------
-      // if (materialName === "g_wall_2" || materialName === "g_wall_3") {
-      //   child.material = new THREE.MeshStandardMaterial({
-      //     color: "#e8d5b5",
-      //     roughness: 0.35,
-      //     metalness: 0.05,
-      //   });
-      //   return;
-      // }
-
-      // // -------------------------
-      // // GREEN MARBLE WALL (G_wall_1)
-      // // -------------------------
-      // if (materialName === "g_wall_1") {
-      //   child.material = new THREE.MeshStandardMaterial({
-      //     color: "#7b8d88",
-      //     roughness: 0.3,
-      //     metalness: 0.1,
-      //   });
-      //   return;
-      // }
-
-      // -------------------------
-      // GLASS FROSTED
-      // -------------------------
-      if (materialName === "glass_frosted") {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: "#dfe7e7",
-          metalness: 0,
-          roughness: 0.5,
-          roughnessRoughness: 0.5,
-          transmission: 0.9,
-          transparent: true,
-          opacity: 0.8,
-          ior: 1.45,
-          thickness: 0.1,
           side: THREE.DoubleSide,
         });
 
         return;
       }
 
-      // -------------------------
+      // ==================================================
+      // GLASS FROSTED
+      // ==================================================
+
+      if (materialName === "glass_frosted") {
+        child.material = new THREE.MeshPhysicalMaterial({
+          color: "#e8eff1",
+          metalness: 0,
+          roughness: 0.45,
+          transmission: 0.85,
+          thickness: 0.2,
+          ior: 1.5,
+          transparent: true,
+          opacity: 1,
+          side: THREE.DoubleSide,
+        });
+
+        return;
+      }
+
+      // ==================================================
       // GLASS DARK
-      // -------------------------
+      // ==================================================
+
       if (materialName === "glass_dark") {
         child.material = new THREE.MeshPhysicalMaterial({
-          color: "#233033",
-          metalness: 0,
-          roughness: 0.18,
-          transmission: 0.2,
+          color: "#1c282b",
+          metalness: 0.1,
+          roughness: 0.1,
+          transmission: 0.4,
+          thickness: 0.15,
+          ior: 1.5,
           transparent: true,
-          opacity: 0.65,
-          ior: 1.45,
-          thickness: 0.08,
+          opacity: 1,
+          side: THREE.DoubleSide,
         });
+
         return;
       }
     });
 
     return cloned;
-  }, [scene]);
+  }, [scene, waterNormals]);
 
-  // -------------------------
-  // WATER WAVES
-  // -------------------------
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
+  // ==================================================
+  // WATER ANIMATION
+  // ==================================================
 
-    waterMeshes.current.forEach((mesh) => {
-      const geometry = mesh.geometry;
-      const position = geometry?.attributes?.position;
-      const originalPositions = mesh.userData.originalPositions;
-
-      if (!position || !originalPositions) return;
-      if (position.count < 100) return;
-
-      for (let i = 0; i < position.count; i++) {
-        const index = i * 3;
-        const originalX = originalPositions[index];
-        const originalY = originalPositions[index + 1];
-        const originalZ = originalPositions[index + 2];
-
-        const wave1 = Math.sin(originalX * 0.8 + time * 0.6) * 0.004;
-        const wave2 = Math.cos(originalZ * 0.6 + time * 0.5) * 0.003;
-
-        position.setXYZ(i, originalX, originalY + wave1 + wave2, originalZ);
-      }
-
-      position.needsUpdate = true;
-      geometry.computeVertexNormals();
-    });
+  useFrame((_, delta) => {
+    if (waterNormals) {
+      waterNormals.offset.x += delta * 0.03;
+      waterNormals.offset.y += delta * 0.02;
+    }
   });
 
   return (
     <>
-      {/* שמיים אדריכליים מוארים ונקיים */}
-      <Sky sunPosition={[100, 20, 100]} inclination={0.2} azimuth={180} />
+      {/* ==================================================
+          SKY
+          ================================================== */}
 
-      {/* עננים רכים ועדינים ברקע מאחורי העצים */}
+      <Sky
+        distance={450000}
+        sunPosition={[50, 12, -80]}
+        turbidity={0.8}
+        rayleigh={2}
+        mieCoefficient={0.003}
+        mieDirectionalG={0.75}
+      />
+
+      {/* ==================================================
+          CLOUDS
+          ================================================== */}
+
       <Clouds limit={200} material={THREE.MeshBasicMaterial}>
         <Cloud
           position={[30, 30, -70]}
-          speed={0.1}
-          opacity={0.25}
+          speed={0.08}
+          opacity={0.16}
           bounds={[320, 15, 20]}
           volume={10}
           seed={2}
           color="#ffffff"
           scale={4}
         />
+
         <Cloud
           position={[30, 28, -60]}
-          speed={0.09}
-          opacity={0.3}
+          speed={0.07}
+          opacity={0.18}
           bounds={[150, 10, 10]}
           color="#f4f4f4"
           scale={7}
         />
       </Clouds>
+
+      {/* ==================================================
+          PAVILION
+          ================================================== */}
 
       <primitive object={pavilionScene} />
     </>

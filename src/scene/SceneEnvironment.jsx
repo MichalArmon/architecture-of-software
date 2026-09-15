@@ -22,9 +22,9 @@ function SceneEnvironment() {
         mieDirectionalG={0.8}
       />
 
-      <Environment preset="park" environmentIntensity={0.7} />
+      <Environment preset="park" environmentIntensity={1} />
 
-      <ambientLight intensity={0.22} />
+      <ambientLight intensity={0.45} />
 
       <directionalLight
         position={[20, 28, 12]}
