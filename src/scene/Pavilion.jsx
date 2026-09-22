@@ -1,14 +1,12 @@
 import { useGLTF, Sky, Clouds, Cloud, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 
 function Pavilion() {
   const { scene } = useGLTF("/models/pavilion/pavilion.glb");
 
   const waterNormals = useTexture("/textures/waternormals.jpg");
-
-  const waterObjects = useRef([]);
 
   // ==================================================
   // WATER NORMAL MAP
@@ -108,7 +106,7 @@ function Pavilion() {
       // GLASS CLEAR
       // ==================================================
 
-      if (materialName === "Glass_regular") {
+      if (materialName === "glass_regular") {
         child.material = new THREE.MeshPhysicalMaterial({
           color: "#ffffff",
           metalness: 0,
@@ -117,7 +115,7 @@ function Pavilion() {
           thickness: 0.1,
           ior: 1.5,
           transparent: true,
-          opacity: 1,
+          opacity: 0.25,
           side: THREE.DoubleSide,
         });
 
