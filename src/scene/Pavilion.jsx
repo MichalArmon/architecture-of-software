@@ -3,7 +3,9 @@ import * as THREE from "three";
 import { useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 
-function Pavilion() {
+import { EXPLODE_OFFSETS } from "./explode/explodeOffsets";
+
+function Pavilion({ explodeProgress = 1 }) {
   const { scene } = useGLTF("/models/pavilion/pavilion.glb");
 
   const waterNormals = useTexture("/textures/waternormals.jpg");
@@ -28,6 +30,9 @@ function Pavilion() {
 
     cloned.traverse((child) => {
       if (!child.isMesh) return;
+
+      // Save original position for explode animation
+      child.userData.originalPosition = child.position.clone();
 
       child.castShadow = true;
       child.receiveShadow = true;
@@ -77,13 +82,10 @@ function Pavilion() {
       }
 
       // ==================================================
-      // WATER (MeshPhysicalMaterial)
+      // WATER
       // ==================================================
 
       if (materialName === "water") {
-        // אם צריך להרים מעט את המים ביחס לריינו, אפשר לשחרר את ההערה כאן:
-        // child.position.y += 0.05;
-
         child.material = new THREE.MeshPhysicalMaterial({
           color: "#7ab3cf",
           metalness: 0.1,
@@ -99,6 +101,7 @@ function Pavilion() {
         });
 
         child.receiveShadow = true;
+
         return;
       }
 
@@ -167,14 +170,54 @@ function Pavilion() {
   }, [scene, waterNormals]);
 
   // ==================================================
-  // WATER ANIMATION
+  // ANIMATION
   // ==================================================
 
   useFrame((_, delta) => {
+    // ==================================================
+    // WATER ANIMATION
+    // ==================================================
+
     if (waterNormals) {
       waterNormals.offset.x += delta * 0.03;
       waterNormals.offset.y += delta * 0.02;
     }
+
+    // ==================================================
+    // EXPLODE ANIMATION
+    // ==================================================
+
+    pavilionScene.traverse((child) => {
+      if (!child.isMesh) return;
+
+      const materialName = (child.material?.name || "").toLowerCase();
+      const offset = EXPLODE_OFFSETS[materialName];
+
+      // אם אין לחלק הזה הגדרת פיצוץ - לא מזיזים אותו
+      if (!offset) return;
+
+      const originalPosition = child.userData.originalPosition;
+
+      if (!originalPosition) return;
+
+      child.position.x = THREE.MathUtils.lerp(
+        originalPosition.x,
+        originalPosition.x + offset[0],
+        explodeProgress,
+      );
+
+      child.position.y = THREE.MathUtils.lerp(
+        originalPosition.y,
+        originalPosition.y + offset[1],
+        explodeProgress,
+      );
+
+      child.position.z = THREE.MathUtils.lerp(
+        originalPosition.z,
+        originalPosition.z + offset[2],
+        explodeProgress,
+      );
+    });
   });
 
   return (
