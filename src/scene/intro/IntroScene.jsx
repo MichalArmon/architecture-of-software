@@ -6,6 +6,7 @@ import Ground from "../Ground";
 import SceneEnvironment from "../SceneEnvironment";
 import { CAMERA_POINTS, CURRENT_CAMERA } from "../cameraPoints";
 import SurroundingTrees from "../SurroundingTrees";
+import ViewsButton from "../../config/ViewsButton";
 
 function IntroScene() {
   const cameraPoint = CAMERA_POINTS[CURRENT_CAMERA];
@@ -28,6 +29,7 @@ function IntroScene() {
           toneMappingExposure: 0.95,
         }}
       >
+        <ViewsButton />
         <SceneEnvironment />
 
         {/* <Trees /> */}
